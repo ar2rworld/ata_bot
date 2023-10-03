@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -31,7 +32,7 @@ func (n *Help) Exec(update *tgbotapi.Update) error {
 	var out = []string{ "Commands:" }
 	ataBot := *n.GetAtaBot()
 	for _, c := range ataBot.GetCommands() {
-		out = append(out, c.GetName())
+		out = append(out, fmt.Sprintf(" - %s", c.GetName()))
 	}
 
 	message := tgbotapi.NewMessage(update.Message.Chat.ID, strings.Join(out, "\n"))

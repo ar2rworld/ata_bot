@@ -48,6 +48,7 @@ func main() {
 	ataBot.AddCommand(commands.NewMaskara())
 	ataBot.AddCommand(commands.NewNewGroupUpdate())
 	ataBot.AddCommand(commands.NewNewGroupMember())
+	ataBot.AddCommand(commands.NewHelp())
 
 	ataBot.Start()
 }
