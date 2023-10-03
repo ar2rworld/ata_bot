@@ -8,6 +8,7 @@ import (
 type AtaBotInterface interface {
 	Send(tgbotapi.Chattable) (tgbotapi.Message, error)
 	AddCommand(Command)
+	GetCommands() []Command
 	HandleUpdate(tgbotapi.Update) []error
 	Start()
 	BanUser(chatID int64, userID int64, revokeMessages bool) error

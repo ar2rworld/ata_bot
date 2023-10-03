@@ -40,3 +40,6 @@ func (t *TestBot) Start() {}
 func (t *TestBot) BanUser(chatID int64, userID int64, revokeMessages bool) error {
 	return nil
 }
+func (t *TestBot) GetCommands() []Command {
+	return []Command{}
+}

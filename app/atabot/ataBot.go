@@ -79,3 +79,7 @@ func (b *AtaBot) BanUser(chatID int64, userID int64, revokeMessages bool) error 
 	_, err := b.Send(banMember)
 	return err
 }
+
+func (b *AtaBot) GetCommands() []commands.Command {
+	return b.commands
+}
