@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  osynellamabot:
+    restart: always
+    image: ar2rworld/ata_bot:master
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - ADMIN_ID=${ADMIN_ID}
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_HOST=${MONGO_HOST}
+      - DB_NAME=${DB_NAME}
