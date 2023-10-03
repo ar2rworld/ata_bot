@@ -3,7 +3,7 @@ version: "3.9"
 services:
   ata_bot:
     restart: always
-    image: ar2rworld/ata_bot:master
+    image: ar2rworld/ata_bot:main
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
       - ADMIN_ID=${ADMIN_ID}
