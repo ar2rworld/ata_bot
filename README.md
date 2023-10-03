@@ -21,4 +21,5 @@
 
 <ul>
   <li>Hot words trigger command</li>
+  <li>IsBot trigger</li>
 </ul>
