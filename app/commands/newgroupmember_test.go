@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -17,8 +16,7 @@ func TestCleanUserJoinsGroup(t *testing.T) {
 		"new_chat_participant":{"id":%d,"is_bot":false,"first_name":"Null","last_name":"User","language_code":"en"},
 		"new_chat_member":{"id":%d,"is_bot":false,"first_name":"Null","last_name":"User","language_code":"en"},
 		"new_chat_members":[{"id":%d,"is_bot":false,"first_name":"Null","last_name":"User","language_code":"en"}]}}`, testUserID, testUserID, testUserID, testUserID)
-	var update *tgbotapi.Update
-	err := json.Unmarshal([]byte(updateString), &update)
+	update, err := NewUpdate(updateString)
 	if err != nil {
 		t.Error(err)
 	}
