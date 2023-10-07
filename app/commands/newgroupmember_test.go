@@ -21,10 +21,10 @@ func TestCleanUserJoinsGroup(t *testing.T) {
 		t.Error(err)
 	}
 
-	var testStorage = &testStorage{}
+	var testStorage = &newGroupMemberTestStorage{}
 
 	newGroupMember := NewNewGroupMember()
-	newGroupMember.SetAtaBot(&ThisTestBot{})
+	newGroupMember.SetAtaBot(&newGroupMemberTestBot{})
 	newGroupMember.SetStorage(testStorage)
 
 	err = newGroupMember.Exec(update)
@@ -38,11 +38,15 @@ func TestCleanUserJoinsGroup(t *testing.T) {
 
 }
 
-type testStorage struct {
+type newGroupMemberTestBot struct {
+	TestBot
+}
+
+type newGroupMemberTestStorage struct {
 	TestStorage
 	targetUserID int64
 }
-func (t *testStorage) IsBanned(u *tgbotapi.User) (bool, error) {
+func (t *newGroupMemberTestStorage) IsBanned(u *tgbotapi.User) (bool, error) {
 	t.targetUserID = u.ID
 	return false, nil
 }

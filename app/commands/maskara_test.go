@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	// tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func TestMaskara(t *testing.T) {
@@ -25,8 +25,8 @@ func TestMaskara(t *testing.T) {
 		t.Error(err)
 	}
 
-	testBot := &ThisTestBot{}
-	testStorage := &ThisTestStorage{}
+	testBot := &maskaraTestBot{}
+	testStorage := &TestStorage{}
 
 	m := NewMaskara()
 	m.SetAtaBot(testBot)
@@ -48,19 +48,12 @@ func TestMaskara(t *testing.T) {
 
 }
 
-type ThisTestStorage struct {
-	TestStorage
-}
-func (t *ThisTestStorage) IsBanned(u *tgbotapi.User) (bool, error) {
-	return false, nil
-}
-
-type ThisTestBot struct {
+type maskaraTestBot struct {
 	TestBot
 	BannedChatID int64
 	BannedUserID int64
 }
-func (t *ThisTestBot) BanUser(chatID, userID int64, revokeMessages bool) error {
+func (t *maskaraTestBot) BanUser(chatID, userID int64, revokeMessages bool) error {
 	t.BannedChatID = chatID
 	t.BannedUserID = userID
 	return nil
