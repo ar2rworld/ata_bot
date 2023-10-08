@@ -12,6 +12,7 @@ type AtaBotInterface interface {
 	HandleUpdate(tgbotapi.Update) []error
 	Start()
 	BanUser(chatID int64, userID int64, revokeMessages bool) error
+	GetUserBio(*tgbotapi.User) (string, error)
 }
 
 type Command interface {

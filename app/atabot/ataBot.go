@@ -2,7 +2,10 @@ package atabot
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"net/http"
+	"regexp"
 
 	"github.com/ar2rworld/ata_bot/app/commands"
 	"github.com/ar2rworld/ata_bot/app/myerror"
@@ -82,4 +85,31 @@ func (b *AtaBot) BanUser(chatID int64, userID int64, revokeMessages bool) error 
 
 func (b *AtaBot) GetCommands() []commands.Command {
 	return b.commands
+}
+
+func (b *AtaBot) GetUserBio(u *tgbotapi.User) (string, error) {
+	if u.UserName == "" {
+		return "", myerror.NewError("user missing username: " + u.String())
+	}
+
+	// request telegram page and parse possible bio
+	res, err := http.Get(fmt.Sprintf("https://t.me/%s", u.UserName))
+	if err != nil {
+		return "", err
+	}
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	page := string(data)
+
+	// page contains div with class "tgme_page_description"
+	re := regexp.MustCompile("<div\\s*class=\"tgme_page_description\\s*\">(.*)<\\/")
+	matches := re.FindStringSubmatch(page)
+	if len(matches) < 2 {
+		return "", nil
+	}
+	return matches[1], nil
 }
