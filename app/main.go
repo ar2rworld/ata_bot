@@ -30,7 +30,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	unbanArt(bot, ataStorage)
+	// unbanArt(bot, ataStorage)
 	// banArt(bot)
 
 	bot.Debug = true
