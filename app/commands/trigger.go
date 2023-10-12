@@ -55,6 +55,8 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 			}
 
 			bio, err := ataBot.GetUserBio(&newMember)
+			bio = strings.ToLower(bio)
+			
 			if err != nil {
 				return err
 			}
