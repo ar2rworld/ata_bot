@@ -22,6 +22,9 @@ func (t *TestStorage) RemoveChat(c *tgbotapi.Chat, status string) error {
 func (t *TestStorage) FindChat(int64) (*storage.Chat, error) {
 	return &storage.Chat{}, nil
 }
+func (t *TestStorage) GetTriggerWords() (*[]storage.TriggerWord, error) {
+	return &[]storage.TriggerWord{}, nil
+}
 
 type TestBot struct {}
 
@@ -42,4 +45,8 @@ func (t *TestBot) BanUser(chatID int64, userID int64, revokeMessages bool) error
 }
 func (t *TestBot) GetCommands() []Command {
 	return []Command{}
+}
+
+func (t *TestBot) GetUserBio(*tgbotapi.User) (string, error) {
+	return "", nil
 }

@@ -1,6 +1,9 @@
 package commands
 
 import (
+	"strings"
+
+	"github.com/ar2rworld/ata_bot/app/storage"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -25,7 +28,11 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 	}
 	if len(update.Message.NewChatMembers) > 0 {
 		ataBot  := *t.GetAtaBot()
-		storage := *t.GetStorage()
+		ataStorage := *t.GetStorage()
+		triggerWords, err := ataStorage.GetTriggerWords()
+		if err != nil {
+			return err
+		}
 
 		for _, newMember := range update.Message.NewChatMembers {
 			
@@ -35,15 +42,48 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 				if err != nil {
 					return err
 				}
-				err = storage.AddToBanned(&newMember)
+				err = ataStorage.AddToBanned(&newMember)
 				if err != nil {
 					return nil
 				}
 			}
 
 			// TODO: if newMember has some interesting words in bio
-		}
+			if newMember.UserName == "" {
+				return nil
+			}
 
+			bio, err := ataBot.GetUserBio(&newMember)
+			if err != nil {
+				return err
+			}
+			tempSeverity := 0
+			for _, tw := range *triggerWords {
+				foundTriggerWord := strings.Contains(bio, tw.Text)
+				if foundTriggerWord {
+					if tempSeverity < tw.Severity {
+						tempSeverity = tw.Severity
+					}
+				}
+			}
+			if tempSeverity == 0 {
+				return nil
+			}
+			switch tempSeverity {
+				case storage.Severity200:
+					err = ataBot.BanUser(update.Message.Chat.ID, newMember.ID, true)
+					if err != nil {
+						return err
+					}
+					err = ataStorage.AddToBanned(&newMember)
+					if err != nil {
+						return err
+					}
+				break
+				// case storage.Severity150:
+			}
+			
+		}
 	}
 	return nil
 }

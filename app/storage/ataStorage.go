@@ -22,6 +22,7 @@ type AtaStorage interface {
 	AddNewChat(*tgbotapi.Chat, string) error
 	RemoveChat(*tgbotapi.Chat, string) error
 	FindChat(int64) (*Chat, error)
+	GetTriggerWords() (*[]TriggerWord, error)
 }
 
 type Storage struct {
@@ -29,7 +30,7 @@ type Storage struct {
 	DB								 	 mongo.Database
 	mongoUser     		 	 string
 	mongoHost     			 string
-	NPredictDefaultLimit int
+	triggerWords				 *[]TriggerWord
 }
 
 func NewStorage() (*Storage, error) {
