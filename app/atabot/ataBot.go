@@ -75,12 +75,16 @@ func (b *AtaBot) BanUser(chatID int64, userID int64, revokeMessages bool) error 
 	chatMemberConfig.ChatID = chatID
 	chatMemberConfig.UserID = userID
 
-	banMember := &tgbotapi.BanChatMemberConfig{
+	banMemberRequest := &tgbotapi.BanChatMemberConfig{
 		ChatMemberConfig: *chatMemberConfig,
 		RevokeMessages: revokeMessages,
 	}
-	_, err := b.Send(banMember)
-	return err
+	res, err := b.Bot.Request(banMemberRequest)
+	if err != nil || res.ErrorCode != 0 {
+		return myerror.NewError(fmt.Sprintf(`error(%s) banning user(%d) in channel(%d), api response: errorCode: %d, description %s, json raw: %s`,
+			err, userID, chatID, res.ErrorCode, res.Description, res.Result))
+	}
+	return nil
 }
 
 func (b *AtaBot) GetCommands() []commands.Command {
