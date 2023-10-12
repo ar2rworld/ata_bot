@@ -58,10 +58,12 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 				return err
 			}
 			tempSeverity := 0
+			triggeredWord := "" 
 			for _, tw := range *triggerWords {
 				foundTriggerWord := strings.Contains(bio, tw.Text)
 				if foundTriggerWord {
 					if tempSeverity < tw.Severity {
+						triggeredWord = bio
 						tempSeverity = tw.Severity
 					}
 				}
@@ -69,13 +71,20 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 			if tempSeverity == 0 {
 				return nil
 			}
+
+			chatID := update.Message.Chat.ID
+
 			switch tempSeverity {
 				case storage.Severity200:
-					err = ataBot.BanUser(update.Message.Chat.ID, newMember.ID, true)
+					err = ataBot.BanUser(chatID, newMember.ID, true)
 					if err != nil {
 						return err
 					}
 					err = ataStorage.AddToBanned(&newMember)
+					if err != nil {
+						return err
+					}
+					err = ataStorage.Report(chatID, newMember.ID, storage.Severity200, "banned", "bio:" + triggeredWord)
 					if err != nil {
 						return err
 					}
