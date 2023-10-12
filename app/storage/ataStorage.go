@@ -23,6 +23,7 @@ type AtaStorage interface {
 	RemoveChat(*tgbotapi.Chat, string) error
 	FindChat(int64) (*Chat, error)
 	GetTriggerWords() (*[]TriggerWord, error)
+	Report(chatID, userID int64, severity int, action, comment string) error
 }
 
 type Storage struct {

@@ -25,6 +25,9 @@ func (t *TestStorage) FindChat(int64) (*storage.Chat, error) {
 func (t *TestStorage) GetTriggerWords() (*[]storage.TriggerWord, error) {
 	return &[]storage.TriggerWord{}, nil
 }
+func (t *TestStorage) Report(chatID, userID int64, severity int, action, comment string) error {
+	return nil
+}
 
 type TestBot struct {}
 
