@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const fakesCollection = "fakes"
+const FakesCollection = "fakes"
 const chatsCollection = "chats"
 
 type AtaStorage interface {
@@ -73,7 +73,7 @@ func NewStorage() (*Storage, error) {
 
 func (s *Storage) IsBanned(user *tgbotapi.User) (bool, error) {
 	var probablyFake FakeUser
-	err := s.DB.Collection(fakesCollection).FindOne(
+	err := s.DB.Collection(FakesCollection).FindOne(
 		context.TODO(),
 		bson.D{{Key: "id", Value: user.ID}},
 	).Decode(&probablyFake)
@@ -90,7 +90,7 @@ func (s *Storage) AddToBanned(user *tgbotapi.User) error {
 		*user,
 		true,
 	}
-	_, err := s.DB.Collection(fakesCollection).InsertOne(
+	_, err := s.DB.Collection(FakesCollection).InsertOne(
 		context.TODO(),
 		fake.toDoc(),
 	)
