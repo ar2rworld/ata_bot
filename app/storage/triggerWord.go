@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"log"
 
 	"github.com/ar2rworld/ata_bot/app/myerror"
 	"go.mongodb.org/mongo-driver/bson"
@@ -36,22 +35,4 @@ func (s *Storage) GetTriggerWords() (*[]TriggerWord, error) {
 	s.triggerWords = &results
 
 	return s.triggerWords, nil
-}
-
-func (s *Storage) TryTriggerWords() error {
-	c, err := s.DB.Collection(triggerwords).Find(context.TODO(), bson.D{})
-	if err != nil && err.Error() != myerror.NoDocuments {
-		return err
-	}
-	defer c.Close(context.TODO())
-
-	// results := []TriggerWord{}
-	results := []bson.M{}
-	if err = c.All(context.TODO(), &results); err != nil {
-		return err
-	}
-
-	log.Println(results)
-
-	return nil
 }
