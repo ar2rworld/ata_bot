@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"strconv"
@@ -8,6 +9,7 @@ import (
 	"github.com/ar2rworld/ata_bot/app/atabot"
 	"github.com/ar2rworld/ata_bot/app/commands"
 	"github.com/ar2rworld/ata_bot/app/storage"
+	"go.mongodb.org/mongo-driver/bson"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -28,7 +30,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	unbanArt(bot)
+	unbanArt(bot, ataStorage)
 
 	bot.Debug = true
 
@@ -59,7 +61,7 @@ func main() {
 	ataBot.Start()
 }
 
-func unbanArt(bot *tgbotapi.BotAPI){
+func unbanArt(bot *tgbotapi.BotAPI, ataStorage *storage.Storage){
 	artID  := int64(1265820975)
 	chatID := int64(-1001506079405)
 	chatMemberConfig := &tgbotapi.ChatMemberConfig{
@@ -69,11 +71,15 @@ func unbanArt(bot *tgbotapi.BotAPI){
 
 	message := &tgbotapi.UnbanChatMemberConfig{
 		ChatMemberConfig: *chatMemberConfig,
-		OnlyIfBanned: false,
 	}
 
 	_, err := bot.Send(message)
-	if err != nil {
+	if err != nil && err.Error() != "json: cannot unmarshal bool into Go value of type tgbotapi.Message" {
 		log.Println("unban:", err)
 	}
+	result, err := ataStorage.DB.Collection(storage.FakesCollection).DeleteOne(context.Background(), bson.D{{Key: "id", Value: artID}})
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("deleted: ", result.DeletedCount)
 }
