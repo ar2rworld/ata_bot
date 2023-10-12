@@ -53,22 +53,6 @@ func TestTriggerIsBot(t *testing.T) {
 
 func TestTriggerUserDescription(t *testing.T) {
 	// user joins the chat, bot has to check his bio and figure if the user has some interesting words in bio ban him
-
-	testUserID := int64(1014210753)
-	testChatID := int64(-1001506079405)
-	testUserUserName := "a"
-	updateString := fmt.Sprintf(`{"update_id":382028976,
-		"message":{"message_id":1508,"from":{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"},
-		"chat":{"id":%d,"title":"Public group for my bots","username":"my_bots_group","type":"supergroup"},
-		"date":1696536356,
-		"new_chat_participant":{"id":%d,"is_bot":false,"first_name":"Null","last_name":"User","language_code":"en"},
-		"new_chat_member":{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"},
-		"new_chat_members":[{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"}]}}`,
-		testUserID, testUserUserName, testChatID, testUserID, testUserID, testUserUserName, testUserID, testUserUserName)
-	update, err := NewUpdate(updateString)
-	if err != nil {
-		t.Error(err)
-	}
 	
 	var testStorage = &triggerDescriptionTestStorage{}
 	var testBot     = &triggerDescriptionTestBot{}
@@ -77,25 +61,91 @@ func TestTriggerUserDescription(t *testing.T) {
 	trigger.SetAtaBot(testBot)
 	trigger.SetStorage(testStorage)
 
-	err = trigger.Exec(update)
+	t.Run("Ban user with interesting bio", func(t *testing.T) {
+		testUserID := int64(1014210753)
+		testChatID := int64(-1001506079405)
+		testUserUserName := "a"
+		updateString := fmt.Sprintf(`{"update_id":382028976,
+			"message":{"message_id":1508,"from":{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"},
+			"chat":{"id":%d,"title":"Public group for my bots","username":"my_bots_group","type":"supergroup"},
+			"date":1696536356,
+			"new_chat_participant":{"id":%d,"is_bot":false,"first_name":"Null","last_name":"User","language_code":"en"},
+			"new_chat_member":{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"},
+			"new_chat_members":[{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"}]}}`,
+			testUserID, testUserUserName, testChatID, testUserID, testUserID, testUserUserName, testUserID, testUserUserName)
+		update, err := NewUpdate(updateString)
+		if err != nil {
+			t.Error(err)
+		}
+		err = trigger.Exec(update)
 
-	if err != nil {
-		t.Fatal(err)
-	}
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	if testBot.bannedChatID != testChatID {
-		t.Errorf("Incorrect bannedChatID: %d != %d", testBot.bannedChatID, testChatID)
-	}
-	if testBot.bannedUserID != testUserID {
-		t.Errorf("Incorrect bannedChatID: %d != %d", testBot.bannedUserID, testUserID)
-	}
-	if testBot.bannedUserUserName != testUserUserName {
-		t.Errorf("Incorrect bannedUserUserName: %s != %s", testBot.bannedUserUserName, testUserUserName)
-	}
-	if testStorage.bannedUserID != testUserID {
-		t.Errorf("Storage: Incorrect bannedUserID: %d != %d", testStorage.bannedUserID, testUserID)
-	}
+		if testBot.bannedChatID != testChatID {
+			t.Errorf("Incorrect bannedChatID: %d != %d", testBot.bannedChatID, testChatID)
+		}
+		if testBot.bannedUserID != testUserID {
+			t.Errorf("Incorrect bannedChatID: %d != %d", testBot.bannedUserID, testUserID)
+		}
+		if testBot.bannedUserUserName != testUserUserName {
+			t.Errorf("Incorrect bannedUserUserName: %s != %s", testBot.bannedUserUserName, testUserUserName)
+		}
+		if testStorage.bannedUserID != testUserID {
+			t.Errorf("Storage: Incorrect bannedUserID: %d != %d", testStorage.bannedUserID, testUserID)
+		}
+		if testStorage.report.ChatID != testChatID ||
+		testStorage.report.UserID != testUserID ||
+		testStorage.report.Severity != storage.Severity200 ||
+		testStorage.report.Action != "banned" {
+			t.Errorf("Something is wrong with Report: %v", testStorage.report)
+		}
+		if testBot.sendToAdminIsCalled {
+			t.Error("SendToAdmin should not be called")
+		}
+	})
+	t.Run("Notify admin about user with sus bio", func(t *testing.T) {
+		testUserID := int64(1)
+		testChatID := int64(-1)
+		testUserUserName := "b"
+		updateString := fmt.Sprintf(`{"update_id":382028976,
+			"message":{"message_id":1508,"from":{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"},
+			"chat":{"id":%d,"title":"Public group for my bots","username":"my_bots_group","type":"supergroup"},
+			"date":1696536356,
+			"new_chat_participant":{"id":%d,"is_bot":false,"first_name":"Null","last_name":"User","language_code":"en"},
+			"new_chat_member":{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"},
+			"new_chat_members":[{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"}]}}`,
+			testUserID, testUserUserName, testChatID, testUserID, testUserID, testUserUserName, testUserID, testUserUserName)
+		update, err := NewUpdate(updateString)
+		if err != nil {
+			t.Error(err)
+		}
 
+		err = trigger.Exec(update)
+
+		if testBot.bannedChatID == testChatID {
+			t.Errorf("Incorrect bannedChatID: %d != %d", testBot.bannedChatID, testChatID)
+		}
+		if testBot.bannedUserID == testUserID {
+			t.Errorf("Incorrect bannedChatID: %d != %d", testBot.bannedUserID, testUserID)
+		}
+		if testBot.bannedUserUserName == testUserUserName {
+			t.Errorf("Incorrect bannedUserUserName: %s != %s", testBot.bannedUserUserName, testUserUserName)
+		}
+		if testStorage.bannedUserID == testUserID {
+			t.Errorf("Storage: Incorrect bannedUserID: %d != %d", testStorage.bannedUserID, testUserID)
+		}
+		if testStorage.report.ChatID != testChatID ||
+		testStorage.report.UserID != testUserID ||
+		testStorage.report.Severity != storage.Severity100 ||
+		testStorage.report.Action != "notified" {
+			t.Errorf("Something is wrong with Report: %v", testStorage.report)
+		}
+		if ! testBot.sendToAdminIsCalled {
+			t.Error("SendToAdmin should be called")
+		}
+	})
 }
 
 type triggerTestBot struct {
@@ -121,6 +171,7 @@ func (s *triggerTestStorage) AddToBanned(u *tgbotapi.User) error {
 type triggerDescriptionTestStorage struct {
 	TestStorage
 	bannedUserID int64
+	report storage.ReportStruct
 }
 func (s *triggerDescriptionTestStorage) GetTriggerWords() (*[]storage.TriggerWord, error) {
 	return &[]storage.TriggerWord{
@@ -128,25 +179,46 @@ func (s *triggerDescriptionTestStorage) GetTriggerWords() (*[]storage.TriggerWor
 			Text: "asdf",
 			Severity: storage.Severity200,
 		},
+		{
+			Text: "fdsa",
+			Severity: storage.Severity100,
+		},
 	}, nil
 }
 func (s *triggerDescriptionTestStorage) AddToBanned(u *tgbotapi.User) error {
 	s.bannedUserID = u.ID
 	return nil
 }
-
+func (s *triggerDescriptionTestStorage) Report(chatID, userID int64, severity int, action, comment string) error {
+	s.report.ChatID = chatID
+	s.report.UserID = userID
+	s.report.Severity = severity
+	s.report.Action = action
+	s.report.Comment = comment
+	return nil
+}
 type triggerDescriptionTestBot struct {
 	TestBot
 	bannedChatID int64
 	bannedUserID int64
 	bannedUserUserName string
+	sendToAdminIsCalled bool
 }
 func (b *triggerDescriptionTestBot) GetUserBio (u *tgbotapi.User) (string, error) {
-	b.bannedUserUserName = u.UserName
-	return "something asdf smt", nil
+	if u.UserName == "a" {
+		b.bannedUserUserName = u.UserName
+		return "something asdf smt", nil
+	}
+	return "fdsa", nil
 }
 func (b *triggerDescriptionTestBot) BanUser(chatID, userID int64, revokeMessages bool) error {
-	b.bannedChatID = chatID
-	b.bannedUserID = userID
+	if userID == int64(1014210753) && chatID == int64(-1001506079405) {
+		b.bannedChatID = chatID
+		b.bannedUserID = userID
+	}
+	return nil
+}
+func (t *triggerDescriptionTestBot) SendToAdmin(s string) error {
+	t.sendToAdminIsCalled = true
 	return nil
 }

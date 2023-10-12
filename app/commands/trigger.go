@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/ar2rworld/ata_bot/app/storage"
@@ -90,6 +91,17 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 					}
 				break
 				// case storage.Severity150:
+					// mb just mute?
+				// break
+				case storage.Severity100:
+					err = ataStorage.Report(chatID, newMember.ID, storage.Severity100, "notified", "sus bio" + triggeredWord)
+					if err != nil {
+						return err
+					}
+					err = ataBot.SendToAdmin(fmt.Sprintf(`sus user(%d) bio: "%s" in chat(%d)`, newMember.ID, triggeredWord, chatID))
+					if err != nil {
+						return err
+					}
 			}
 			
 		}
