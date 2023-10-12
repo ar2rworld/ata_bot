@@ -53,3 +53,7 @@ func (t *TestBot) GetCommands() []Command {
 func (t *TestBot) GetUserBio(*tgbotapi.User) (string, error) {
 	return "", nil
 }
+
+func (t *TestBot) SendToAdmin(m string) error {
+	return nil
+}

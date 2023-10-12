@@ -113,3 +113,9 @@ func (b *AtaBot) GetUserBio(u *tgbotapi.User) (string, error) {
 	}
 	return matches[1], nil
 }
+
+func (t *AtaBot) SendToAdmin(s string) error {
+	m := tgbotapi.NewMessage(t.AdminID, s)
+	_, err := t.Send(m)
+	return err
+}

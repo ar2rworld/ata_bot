@@ -51,6 +51,11 @@ func main() {
 	ataBot.AddCommand(commands.NewTrigger())
 	ataBot.AddCommand(commands.NewHelp())
 
+	err = ataBot.SendToAdmin("Bastaimyn goi")
+	if err != nil {
+		log.Println("Start message error:", err)
+	}
+
 	ataBot.Start()
 }
 
