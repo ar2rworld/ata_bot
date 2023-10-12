@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -14,6 +15,7 @@ type ReportStruct struct {
 	Severity int
 	Action   string
 	Comment  string
+	DateCreated     time.Time
 }
 func NewReport(chatID, userID int64, severity int, action, comment string) *ReportStruct {
 	return &ReportStruct{
@@ -22,6 +24,7 @@ func NewReport(chatID, userID int64, severity int, action, comment string) *Repo
 		Severity: severity,
 		Action: action,
 		Comment: comment,
+		DateCreated: time.Now(),
 	}
 }
 func (r *ReportStruct) toDoc() bson.D {
@@ -31,6 +34,7 @@ func (r *ReportStruct) toDoc() bson.D {
 		{Key: "severity", Value: r.Severity},
 		{Key: "action", Value: r.Action},
 		{Key: "comment", Value: r.Comment},
+		{Key: "datecreated", Value: r.DateCreated},
 	}
 }
 
@@ -41,6 +45,6 @@ func (s *Storage) Report(chatID, userID int64, severity int, action, comment str
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
