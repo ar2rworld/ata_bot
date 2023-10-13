@@ -28,9 +28,13 @@ func (n *NewGroupMember) Exec(update *tgbotapi.Update) error {
 				return err
 			}
 			if banned {
-
-				err = n.ataBot.BanUser(update.Message.Chat.ID, chatMember.ID, true)
-
+				chatID := update.Message.Chat.ID
+				err = n.ataBot.BanUser(chatID, chatMember.ID, true)
+				if err != nil {
+					return err
+				}
+				
+				err = n.ataBot.DeleteMessage(chatID, update.Message.MessageID)
 				if err != nil {
 					return err
 				}
