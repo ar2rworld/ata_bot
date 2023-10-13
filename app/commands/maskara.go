@@ -71,15 +71,13 @@ func (m *Maskara) Exec(update *tgbotapi.Update) error {
 			return err
 		}
 
-		clearMaskara := tgbotapi.NewDeleteMessage(chatID, update.Message.MessageID)
-		_, err = ataBot.Send(clearMaskara)
-		if err != nil && err.Error() != myerror.UnmarshallBoolErrorMessage {
+		err = ataBot.DeleteMessage(chatID, update.Message.MessageID)
+		if err != nil {
 			return err
 		}
 
-		clearFake := tgbotapi.NewDeleteMessage(chatID, update.Message.ReplyToMessage.MessageID)
-		_, err = ataBot.Send(clearFake)
-		if err != nil && err.Error() != myerror.UnmarshallBoolErrorMessage {
+		err = ataBot.DeleteMessage(chatID, update.Message.ReplyToMessage.MessageID)
+		if err != nil {
 			return err
 		}
 	}
