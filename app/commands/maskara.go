@@ -61,13 +61,12 @@ func (m *Maskara) Exec(update *tgbotapi.Update) error {
 		chatID := update.Message.Chat.ID
 
 		err = ataBot.BanUser(chatID, fakeUser.ID, true)
-		if err != nil && err.Error() == myerror.BadRequestNotEnoughRights {
+		if err != nil {
 			askForPermissions := tgbotapi.NewMessage(chatID, "need \"Ban Users\" and \"Delete Messages\" permission")
-			ataBot.Send(askForPermissions)
-		} else if err != nil && err.Error() == myerror.UnmarshallBoolErrorMessage {
-			// do nothing
-		} else {
-			return err
+			_, err = ataBot.Send(askForPermissions)
+			if err != nil {
+				return nil
+			}
 		}
 
 		clearMaskara := tgbotapi.NewDeleteMessage(chatID, update.Message.MessageID)
