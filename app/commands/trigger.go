@@ -87,6 +87,12 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 					if err != nil {
 						return err
 					}
+					
+					err = ataBot.DeleteMessage(chatID, update.Message.MessageID)
+					if err != nil {
+						return err
+					}
+
 					err = ataStorage.Report(chatID, newMember.ID, storage.Severity200, "banned", "bio:" + triggeredWord)
 					if err != nil {
 						return err
