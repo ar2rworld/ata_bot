@@ -126,3 +126,12 @@ func (t *AtaBot) SendToAdmin(s string) error {
 	_, err := t.Send(m)
 	return err
 }
+
+func (t *AtaBot) DeleteMessage(chatID int64, messageID int) error {
+	d := tgbotapi.NewDeleteMessage(chatID, messageID)
+	res, err := t.Bot.Request(d)
+	if err != nil {
+		return myerror.NewAPIResponseError(res, err)
+	}
+	return nil
+}

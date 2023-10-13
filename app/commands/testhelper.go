@@ -57,3 +57,6 @@ func (t *TestBot) GetUserBio(*tgbotapi.User) (string, error) {
 func (t *TestBot) SendToAdmin(m string) error {
 	return nil
 }
+func (t *TestBot) DeleteMessage(chatID int64, messageID int) error {
+	return nil
+}
