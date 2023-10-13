@@ -71,6 +71,9 @@ func (b *AtaBot) Start() {
 }
 
 func (b *AtaBot) BanUser(chatID int64, userID int64, revokeMessages bool) error {
+	if userID == b.AdminID {
+		return nil
+	}
 	chatMemberConfig := &tgbotapi.ChatMemberConfig{}
 	chatMemberConfig.ChatID = chatID
 	chatMemberConfig.UserID = userID
