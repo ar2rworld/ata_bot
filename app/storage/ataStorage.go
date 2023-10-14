@@ -78,6 +78,9 @@ func (s *Storage) IsBanned(user *tgbotapi.User) (bool, error) {
 		bson.D{{Key: "id", Value: user.ID}},
 	).Decode(&probablyFake)
 
+	if err != nil && err.Error() == myerror.NoDocuments {
+		return false, nil
+	}
 	if err != nil {
 		return false, err
 	}
