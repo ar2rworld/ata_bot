@@ -49,7 +49,7 @@ func (c *CommandStruct) SetStorage(s storage.AtaStorage) {
 }
 
 func (c *CommandStruct) Authorised(id int64) bool {
-	if id == c.adminID {
+	if id == c.ataBot.GetAdminID() {
 		return true
 	}
 	return false
