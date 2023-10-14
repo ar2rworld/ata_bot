@@ -24,3 +24,19 @@ func (f *FakeUser) toDoc() bson.D {
 		{ Key: "supportsinlinequeries", Value: f.SupportsInlineQueries },		
 	}
 }
+
+func UserToString(u *tgbotapi.User) string {
+	return fmt.Sprintf(`{
+		"id":%d,
+		"is_bot":%v,
+		"first_name":"%s",
+		"last_name":"%s",
+		"username":"%s",
+		"language_code": "%s",
+		"can_join_groups":%v,
+		"can_read_all_group_messages":%v,
+		"supports_inline_queries":%v
+	}`, u.ID, u.IsBot, u.FirstName, u.LastName,
+	u.UserName, u.LanguageCode, u.CanJoinGroups,
+	u.CanReadAllGroupMessages, u.SupportsInlineQueries)
+}
