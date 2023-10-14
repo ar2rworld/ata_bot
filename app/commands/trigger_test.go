@@ -101,7 +101,7 @@ func TestTriggerUserDescription(t *testing.T) {
 		testStorage.report.Action != "banned" {
 			t.Errorf("Something is wrong with Report: %v", testStorage.report)
 		}
-		if testBot.sendToAdminIsCalled {
+		if testBot.sendIsCalled {
 			t.Error("SendToAdmin should not be called")
 		}
 	})
@@ -142,8 +142,8 @@ func TestTriggerUserDescription(t *testing.T) {
 		testStorage.report.Action != "notified" {
 			t.Errorf("Something is wrong with Report: %v", testStorage.report)
 		}
-		if ! testBot.sendToAdminIsCalled {
-			t.Error("SendToAdmin should be called")
+		if ! testBot.sendIsCalled {
+			t.Error("Send should be called")
 		}
 	})
 }
@@ -202,7 +202,7 @@ type triggerDescriptionTestBot struct {
 	bannedChatID int64
 	bannedUserID int64
 	bannedUserUserName string
-	sendToAdminIsCalled bool
+	sendIsCalled bool
 }
 func (b *triggerDescriptionTestBot) GetUserBio (u *tgbotapi.User) (string, error) {
 	if u.UserName == "a" {
@@ -218,7 +218,7 @@ func (b *triggerDescriptionTestBot) BanUser(chatID, userID int64, revokeMessages
 	}
 	return nil
 }
-func (t *triggerDescriptionTestBot) SendToAdmin(s string) error {
-	t.sendToAdminIsCalled = true
-	return nil
+func (t *triggerDescriptionTestBot) Send(c tgbotapi.Chattable) (tgbotapi.Message, error) {
+	t.sendIsCalled = true
+	return tgbotapi.Message{}, nil
 }
