@@ -71,23 +71,6 @@ func NewStorage() (*Storage, error) {
 	return storage, nil
 }
 
-func (s *Storage) IsBanned(user *tgbotapi.User) (bool, error) {
-	var probablyFake FakeUser
-	err := s.DB.Collection(FakesCollection).FindOne(
-		context.TODO(),
-		bson.D{{Key: "id", Value: user.ID}},
-	).Decode(&probablyFake)
-
-	if err != nil && err.Error() == myerror.NoDocuments {
-		return false, nil
-	}
-	if err != nil {
-		return false, err
-	}
-
-	return probablyFake.IsBanned, nil
-}
-
 func (s *Storage) AddToBanned(user *tgbotapi.User) error {
 	var fake FakeUser = FakeUser{
 		*user,
