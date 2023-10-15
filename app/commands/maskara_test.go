@@ -8,7 +8,6 @@ import (
 )
 
 func TestMaskara(t *testing.T) {
-	adminID := int64(1014210753)
 	chatID  := int64(-1001757386839)
 	userID  := int64(6384738980)
 	
@@ -31,7 +30,6 @@ func TestMaskara(t *testing.T) {
 	m := NewMaskara()
 	m.SetAtaBot(testBot)
 	m.SetStorage(testStorage)
-	m.SetAuthorisedID(adminID)
 
 	err = m.Exec(update)
 
@@ -53,6 +51,11 @@ type maskaraTestBot struct {
 	BannedChatID int64
 	BannedUserID int64
 }
+
+func (t *maskaraTestBot) GetAdminID() int64 {
+	return 1014210753
+}
+
 func (t *maskaraTestBot) BanUser(chatID, userID int64, revokeMessages bool) error {
 	t.BannedChatID = chatID
 	t.BannedUserID = userID
