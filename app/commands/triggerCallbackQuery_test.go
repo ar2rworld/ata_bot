@@ -14,7 +14,7 @@ func TestTriggerCallbackQuery(t *testing.T) {
 		update := &tgbotapi.Update{
 			CallbackQuery: &tgbotapi.CallbackQuery{
 				From: &tgbotapi.User{ ID: unauthorisedID },
-				Data: BAN + "|,|123|,|321",
+				Data: BAN + "|,|123|,|456|,|789|",
 			},
 		}
 
@@ -48,9 +48,10 @@ func TestTriggerCallbackQuery(t *testing.T) {
 		userID := int64(1014210753)
 		chatID := int64(1014210753)
 		
-		action       := BAN
-		publicChatID := int64(-1001506079405)
-		targetUserID := int64(1265820975)
+		action             := BAN
+		publicChatID       := int64(-1001506079405)
+		targetUserID       := int64(1265820975)
+		newMemberMessageID := 789
 		
 
 		updateString := fmt.Sprintf(`{"update_id":382029020,
@@ -71,9 +72,9 @@ func TestTriggerCallbackQuery(t *testing.T) {
 				}
 				},
 				"chat_instance":"-8603891193044155368",
-				"data":"%s|,|%d|,|%d"
+				"data":"%s|,|%d|,|%d|,|%d"
 			}
-		}`, userID, chatID, action, publicChatID, targetUserID)
+		}`, userID, chatID, action, publicChatID, targetUserID, newMemberMessageID)
 		update, err := NewUpdate(updateString)
 		if err != nil {
 			t.Fatal(err)
@@ -99,6 +100,12 @@ func TestTriggerCallbackQuery(t *testing.T) {
 		}
 		if ! testBot.revokeMessage {
 			t.Error("RevokeMessages should be true")
+		}
+		if testBot.deleteMessageChatID != publicChatID {
+			t.Errorf("Incorrect deleteMessageChatID: %d != %d", testBot.deleteMessageChatID, publicChatID)
+		}
+		if testBot.deleteMessageMessageID != newMemberMessageID {
+			t.Errorf("Incorrect deleteMessageChatID: %d != %d", testBot.deleteMessageChatID, publicChatID)
 		}
 		if testStorage.isBannedUserID != targetUserID {
 			t.Errorf("Storage: isBannedUserID incorrect: %d != %d", testStorage.isBannedUserID, targetUserID)
@@ -127,6 +134,8 @@ type triggerCallbackQueryTestBot struct {
 	bannedChatID int64
 	bannedUserID int64
 	revokeMessage bool
+	deleteMessageChatID int64
+	deleteMessageMessageID int
 }
 func (b *triggerCallbackQueryTestBot) BanUser(chatID, userID int64, revokeMessage bool) error {
 	b.bannedChatID = chatID
@@ -136,6 +145,11 @@ func (b *triggerCallbackQueryTestBot) BanUser(chatID, userID int64, revokeMessag
 }
 func (*triggerCallbackQueryTestBot) GetAdminID() int64 {
 	return 1014210753
+}
+func (b *triggerCallbackQueryTestBot) DeleteMessage(chatID int64, messageID int) error {
+	b.deleteMessageChatID = chatID
+	b.deleteMessageMessageID = messageID
+	return nil
 }
 
 type triggerCallbackQueryTestStorage struct {

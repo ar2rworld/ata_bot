@@ -33,8 +33,8 @@ func (c *TriggerCallbackQuery) Exec(u *tgbotapi.Update) error {
 	}
 
 	data := strings.Split(u.CallbackQuery.Data, "|,|")
-	// required 3 tokens in data: <action>|,|<chatID>|,|<userData>
-	if len(data) != 3 {
+	// required 3 tokens in data: <action>|,|<chatID>|,|<userData>|,|<newMemberMessageID>
+	if len(data) != 4 {
 		return nil
 	}
 	if data[0] != BAN {
@@ -47,7 +47,11 @@ func (c *TriggerCallbackQuery) Exec(u *tgbotapi.Update) error {
 	}
 	userID, err := strconv.ParseInt(data[2], 10, 64)
 	if err != nil {
-		return myerror.NewError(fmt.Sprintf("error parsingint: %s", err))
+		return myerror.NewError(fmt.Sprintf("error parsing int: %s", err))
+	}
+	newMemberMessageID, err := strconv.Atoi(data[3])
+	if err != nil {
+		return myerror.NewError(fmt.Sprintf("error parsing int: %s", err))
 	}
 
 	user := &tgbotapi.User{ ID: userID }
@@ -64,10 +68,15 @@ func (c *TriggerCallbackQuery) Exec(u *tgbotapi.Update) error {
 	if err != nil {
 		return err
 	}
-	if banned {
-		return nil	
+	if ! banned {
+		err = ataStorage.AddToBanned(user)
+		if err != nil {
+			return err
+		}	
 	}
-	err = ataStorage.AddToBanned(user)
+	
+	// delete newMemberMessage
+	err = ataBot.DeleteMessage(chatID, newMemberMessageID)
 
 	return err
 }

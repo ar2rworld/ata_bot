@@ -115,7 +115,7 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 
 					messageText := fmt.Sprintf(`suspicious user(%d) bio: "%s" in chat(%d)`, newMember.ID, triggeredWord, chatID)
 
-					data := fmt.Sprintf("%s|,|%d|,|%d", BAN, chatID, newMember.ID)
+					data := fmt.Sprintf("%s|,|%d|,|%d|,|%d", BAN, chatID, newMember.ID, update.Message.MessageID)
 					susButton := tgbotapi.NewInlineKeyboardButtonData("ban user", data)
 					urlButton := tgbotapi.NewInlineKeyboardButtonURL("profile", "https://t.me/" + newMember.UserName)
 					markup := tgbotapi.NewInlineKeyboardMarkup([]tgbotapi.InlineKeyboardButton{ susButton, urlButton })
