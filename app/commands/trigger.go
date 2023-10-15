@@ -79,9 +79,15 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 
 			switch tempSeverity {
 				case storage.Severity200:
-					err = ataBot.BanUser(chatID, newMember.ID, true)
+					banned, err := ataStorage.IsBanned(&newMember)
 					if err != nil {
 						return err
+					}
+					if ! banned {
+						err = ataBot.BanUser(chatID, newMember.ID, true)
+						if err != nil {
+							return err
+						}
 					}
 					err = ataStorage.AddToBanned(&newMember)
 					if err != nil {
