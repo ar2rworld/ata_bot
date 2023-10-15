@@ -53,6 +53,7 @@ func main() {
 	ataBot.AddCommand(commands.NewNewGroupMember())
 	ataBot.AddCommand(commands.NewTrigger())
 	ataBot.AddCommand(commands.NewHelp())
+	ataBot.AddCommand(commands.NewTriggerCallbackQuery())
 
 	err = ataBot.SendToAdmin("Bastaimyn goi")
 	if err != nil {

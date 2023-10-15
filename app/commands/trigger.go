@@ -106,10 +106,21 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 					if err != nil {
 						return err
 					}
-					err = ataBot.SendToAdmin(fmt.Sprintf(`sus user(%d) bio: "%s" in chat(%d)`, newMember.ID, triggeredWord, chatID))
+
+					messageText := fmt.Sprintf(`suspicious user(%d) bio: "%s" in chat(%d)`, newMember.ID, triggeredWord, chatID)
+
+					data := fmt.Sprintf("%s|,|%d|,|%d", BAN, chatID, newMember.ID)
+					susButton := tgbotapi.NewInlineKeyboardButtonData("ban user", data)
+					urlButton := tgbotapi.NewInlineKeyboardButtonURL("profile", "https://t.me/" + newMember.UserName)
+					markup := tgbotapi.NewInlineKeyboardMarkup([]tgbotapi.InlineKeyboardButton{ susButton, urlButton })
+
+					m := tgbotapi.NewMessage(ataBot.GetAdminID(), messageText)
+					m.ReplyMarkup = markup
+					_, err := ataBot.Send(m)
 					if err != nil {
 						return err
 					}
+				break
 			}
 			
 		}
