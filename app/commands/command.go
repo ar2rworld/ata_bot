@@ -16,6 +16,7 @@ type AtaBotInterface interface {
 	GetAdminID() int64
 	SendToAdmin(string) error
 	DeleteMessage(chatID int64, messageID int) error
+	GetUserProfilePic(*tgbotapi.User) (string, error)
 }
 
 type Command interface {

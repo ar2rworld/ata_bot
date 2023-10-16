@@ -54,6 +54,10 @@ func (t *TestBot) GetUserBio(*tgbotapi.User) (string, error) {
 	return "", nil
 }
 
+func (t *TestBot) GetUserProfilePic(*tgbotapi.User) (string, error) {
+	return "", nil
+}
+
 func (t *TestBot) GetAdminID() int64 {
 	return int64(0)
 }
