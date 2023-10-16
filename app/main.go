@@ -25,6 +25,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if os.Getenv("X_RAPIDAPI_KEY") == "" {
+		log.Fatal("Missing X_RAPIDAPI_KEY env variable")
+	}
+
 	ataStorage, err := storage.NewStorage()
 	if err != nil {
 		log.Fatal(err)

@@ -3,6 +3,7 @@ package commands
 import (
 	"net/http"
 
+	"github.com/ar2rworld/ata_bot/app/api"
 	"github.com/ar2rworld/ata_bot/app/storage"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -21,6 +22,7 @@ type AtaBotInterface interface {
 	GetUserProfilePic(*tgbotapi.User) (string, error)
 	GetAPIResponseHeader() http.Header
 	SetAPIResponseHeader(*http.Header)
+	AnalyzeUserPic(*tgbotapi.User) (api.APIResponse, error)
 }
 
 type Command interface {

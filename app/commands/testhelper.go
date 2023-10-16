@@ -3,6 +3,7 @@ package commands
 import (
 	"net/http"
 
+	"github.com/ar2rworld/ata_bot/app/api"
 	"github.com/ar2rworld/ata_bot/app/storage"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -76,3 +77,7 @@ func (b *TestBot) GetAPIResponseHeader() http.Header {
 }
 
 func (b *TestBot) SetAPIResponseHeader(h *http.Header) {}
+
+func (b *TestBot) AnalyzeUserPic(u *tgbotapi.User) (api.APIResponse, error) {
+	return api.APIResponse{}, nil
+}
