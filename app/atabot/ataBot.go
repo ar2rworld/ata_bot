@@ -20,6 +20,7 @@ type AtaBot struct {
 	AdminID int64
 	updatesChannel *tgbotapi.UpdatesChannel
 	commands []commands.Command
+	APIResponseHeader http.Header
 }
 
 func NewAtaBot(bot *tgbotapi.BotAPI, startMessage string, storage storage.AtaStorage, updatesChannel *tgbotapi.UpdatesChannel, adminID int64) *AtaBot {
@@ -138,4 +139,12 @@ func (t *AtaBot) DeleteMessage(chatID int64, messageID int) error {
 		return myerror.NewAPIResponseError(res, err)
 	}
 	return nil
+}
+
+func (b *AtaBot) GetAPIResponseHeader() http.Header {
+	return b.APIResponseHeader
+}
+
+func (b *AtaBot) SetAPIResponseHeader(h *http.Header) {
+	b.APIResponseHeader = *h
 }

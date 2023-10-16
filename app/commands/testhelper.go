@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"net/http"
+
 	"github.com/ar2rworld/ata_bot/app/storage"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -68,3 +70,9 @@ func (t *TestBot) SendToAdmin(m string) error {
 func (t *TestBot) DeleteMessage(chatID int64, messageID int) error {
 	return nil
 }
+
+func (b *TestBot) GetAPIResponseHeader() http.Header {
+	return nil
+}
+
+func (b *TestBot) SetAPIResponseHeader(h *http.Header) {}

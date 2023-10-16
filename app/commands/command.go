@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"net/http"
+
 	"github.com/ar2rworld/ata_bot/app/storage"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -17,6 +19,8 @@ type AtaBotInterface interface {
 	SendToAdmin(string) error
 	DeleteMessage(chatID int64, messageID int) error
 	GetUserProfilePic(*tgbotapi.User) (string, error)
+	GetAPIResponseHeader() http.Header
+	SetAPIResponseHeader(*http.Header)
 }
 
 type Command interface {
