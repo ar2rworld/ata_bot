@@ -98,7 +98,7 @@ func TestTriggerUserDescription(t *testing.T) {
 		if testStorage.report.ChatID != testChatID ||
 		testStorage.report.UserID != testUserID ||
 		testStorage.report.Severity != storage.Severity200 ||
-		testStorage.report.Action != "banned" {
+		testStorage.report.Action != storage.ActionBanned {
 			t.Errorf("Something is wrong with Report: %v", testStorage.report)
 		}
 		if testBot.sendIsCalled {

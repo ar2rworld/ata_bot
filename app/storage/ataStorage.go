@@ -16,6 +16,9 @@ import (
 const FakesCollection = "fakes"
 const chatsCollection = "chats"
 
+const ActionBanned = "banned"
+const ActionNotified = "notified"
+
 type AtaStorage interface {
 	IsBanned(*tgbotapi.User) (bool, error)
 	AddToBanned(*tgbotapi.User) error

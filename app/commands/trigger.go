@@ -99,7 +99,7 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 						return err
 					}
 
-					err = ataStorage.Report(chatID, newMember.ID, storage.Severity200, "banned", "bio:" + triggeredWord)
+					err = ataStorage.Report(chatID, newMember.ID, storage.Severity200, storage.ActionBanned, "bio:" + triggeredWord)
 					if err != nil {
 						return err
 					}
@@ -108,7 +108,7 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 					// mb just mute?
 				// break
 				case storage.Severity100:
-					err = ataStorage.Report(chatID, newMember.ID, storage.Severity100, "notified", "sus bio" + triggeredWord)
+					err = ataStorage.Report(chatID, newMember.ID, storage.Severity100, storage.ActionNotified, "sus bio" + triggeredWord)
 					if err != nil {
 						return err
 					}
