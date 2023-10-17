@@ -52,11 +52,12 @@ func main() {
 		adminID,
 	)
 
-	ataBot.AddCommand(commands.NewMaskara())
+	ataBot.AddCommand(commands.NewAPIStats())
 	ataBot.AddCommand(commands.NewNewGroupUpdate())
 	ataBot.AddCommand(commands.NewNewGroupMember())
-	ataBot.AddCommand(commands.NewTrigger())
 	ataBot.AddCommand(commands.NewHelp())
+	ataBot.AddCommand(commands.NewMaskara())
+	ataBot.AddCommand(commands.NewTrigger())
 	ataBot.AddCommand(commands.NewTriggerCallbackQuery())
 
 	err = ataBot.SendToAdmin("Bastaimyn goi")
