@@ -11,3 +11,4 @@ services:
       - MONGO_PASSWORD=${MONGO_PASSWORD}
       - MONGO_HOST=${MONGO_HOST}
       - DB_NAME=${DB_NAME}
+      - X_RAPIDAPI_KEY=${X_RAPIDAPI_KEY}
