@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ar2rworld/ata_bot/app/api"
 	"github.com/ar2rworld/ata_bot/app/storage"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -75,7 +76,7 @@ func TestTriggerUserDescription(t *testing.T) {
 			testUserID, testUserUserName, testChatID, testUserID, testUserID, testUserUserName, testUserID, testUserUserName)
 		update, err := NewUpdate(updateString)
 		if err != nil {
-			t.Error(err)
+			t.Fatal(err)
 		}
 		err = trigger.Exec(update)
 
@@ -145,6 +146,88 @@ func TestTriggerUserDescription(t *testing.T) {
 		if ! testBot.sendIsCalled {
 			t.Error("Send should be called")
 		}
+		if testBot.AnalyzeUserPicIsCalled {
+			t.Error("AnalyzeUserPicIsCalled should not be called")
+		}
+	})
+}
+
+func TestTriggerAnalyzeUserPic(t *testing.T) {
+	testBot := &triggerAnalyzeUserPicTestBot{}
+	testStorage := &triggerAnalyzeUserPicTestStorage{}
+
+	trigger := NewTrigger()
+	trigger.SetAtaBot(testBot)
+	trigger.SetStorage(testStorage)
+
+	t.Run("Unsafe user pic", func(t *testing.T) {
+		testUserID := int64(1014210753)
+		testChatID := int64(-1001506079405)
+		testUserUserName := "c"
+		updateString := fmt.Sprintf(`{"update_id":382028976,
+			"message":{"message_id":1508,"from":{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"},
+			"chat":{"id":%d,"title":"Public group for my bots","username":"my_bots_group","type":"supergroup"},
+			"date":1696536356,
+			"new_chat_participant":{"id":%d,"is_bot":false,"first_name":"Null","last_name":"User","language_code":"en"},
+			"new_chat_member":{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"},
+			"new_chat_members":[{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"}]}}`,
+			testUserID, testUserUserName, testChatID, testUserID, testUserID, testUserUserName, testUserID, testUserUserName)
+		update, err := NewUpdate(updateString)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err = trigger.Exec(update); err != nil {
+			t.Fatal(err)
+		}
+
+		if testBot.analyzedNewMemberID != testUserID {
+			t.Errorf("Incorrect analyzedNewMemberID: %d != %d", testBot.analyzedNewMemberID, testUserID)
+		}
+		if testBot.analyzedNewMemberUserName != testUserUserName {
+			t.Errorf(`Incorrect analyzedNewMemberUserName: "%s" != "%s"`, testBot.analyzedNewMemberUserName, testUserUserName)
+		}
+		if testBot.sentMessage == nil {
+			t.Error("bot should have sent a message")
+		}
+		if testStorage.report.Comment != "unsafe profile pic" {
+			t.Error("report comment should be \"unsafe profile pic\":" , testStorage.report.Comment)
+		}
+	})
+
+	t.Run("User pic is not unsafe but potentially unsafe", func(t *testing.T) {
+		testUserID := int64(123)
+		testChatID := int64(-456)
+		testUserUserName := "d"
+		updateString := fmt.Sprintf(`{"update_id":382028976,
+			"message":{"message_id":1508,"from":{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"},
+			"chat":{"id":%d,"title":"Public group for my bots","username":"my_bots_group","type":"supergroup"},
+			"date":1696536356,
+			"new_chat_participant":{"id":%d,"is_bot":false,"first_name":"Null","last_name":"User","language_code":"en"},
+			"new_chat_member":{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"},
+			"new_chat_members":[{"id":%d,"is_bot":false,"username":"%s","first_name":"Null","last_name":"User","language_code":"en"}]}}`,
+			testUserID, testUserUserName, testChatID, testUserID, testUserID, testUserUserName, testUserID, testUserUserName)
+		update, err := NewUpdate(updateString)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err = trigger.Exec(update); err != nil {
+			t.Fatal(err)
+		}
+
+		if testBot.analyzedNewMemberID != testUserID {
+			t.Errorf("Incorrect analyzedNewMemberID: %d != %d", testBot.analyzedNewMemberID, testUserID)
+		}
+		if testBot.analyzedNewMemberUserName != testUserUserName {
+			t.Errorf(`Incorrect analyzedNewMemberUserName: "%s" != "%s"`, testBot.analyzedNewMemberUserName, testUserUserName)
+		}
+		if testBot.sentMessage == nil {
+			t.Error("bot should have sent a message")
+		}
+		if testStorage.report.Comment != "unsafe profile pic" {
+			t.Error("report comment should be \"unsafe profile pic\":" , testStorage.report.Comment)
+		}
 	})
 }
 
@@ -203,6 +286,7 @@ type triggerDescriptionTestBot struct {
 	bannedUserID int64
 	bannedUserUserName string
 	sendIsCalled bool
+	AnalyzeUserPicIsCalled bool
 }
 func (b *triggerDescriptionTestBot) GetUserBio (u *tgbotapi.User) (string, error) {
 	if u.UserName == "a" {
@@ -221,4 +305,51 @@ func (b *triggerDescriptionTestBot) BanUser(chatID, userID int64, revokeMessages
 func (t *triggerDescriptionTestBot) Send(c tgbotapi.Chattable) (tgbotapi.Message, error) {
 	t.sendIsCalled = true
 	return tgbotapi.Message{}, nil
+}
+func (t *triggerDescriptionTestBot) AnalyzeUserPic(u *tgbotapi.User) (api.APIResponse, error) {
+	t.AnalyzeUserPicIsCalled = true
+	return api.APIResponse{Unsafe: true}, nil
+}
+
+type triggerAnalyzeUserPicTestBot struct {
+	TestBot
+	sentMessage tgbotapi.Chattable
+	analyzedNewMemberID int64
+	analyzedNewMemberUserName string
+}
+
+func (t *triggerAnalyzeUserPicTestBot) AnalyzeUserPic(u *tgbotapi.User) (api.APIResponse, error) {
+	if u.UserName == "c" {
+		t.analyzedNewMemberID = u.ID
+		t.analyzedNewMemberUserName = u.UserName
+		return api.APIResponse{Unsafe: true}, nil	
+	} else if u.UserName == "d" {
+		t.analyzedNewMemberID = u.ID
+		t.analyzedNewMemberUserName = u.UserName
+		return api.APIResponse{
+			Unsafe: false,
+			Objects: []api.Objects{
+				{
+					Label: api.EXPOSED_ANUS,
+					Score: float32(0.5),
+				},
+			},
+		}, nil	
+	}
+	return api.APIResponse{}, nil	
+}
+
+func (t *triggerAnalyzeUserPicTestBot) Send(c tgbotapi.Chattable) (tgbotapi.Message, error) {
+	t.sentMessage = c
+	return tgbotapi.Message{}, nil
+}
+
+type triggerAnalyzeUserPicTestStorage struct {
+	TestStorage
+	report storage.ReportStruct
+}
+
+func (s *triggerAnalyzeUserPicTestStorage) Report(chatID int64, userID int64, severity int, action string, comment string) error {
+	s.report = *storage.NewReport(chatID, userID, severity, action, comment)
+	return nil
 }

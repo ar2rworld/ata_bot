@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ar2rworld/ata_bot/app/api"
 	"github.com/ar2rworld/ata_bot/app/storage"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -71,9 +72,6 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 					}
 				}
 			}
-			if tempSeverity == 0 {
-				return nil
-			}
 
 			chatID := update.Message.Chat.ID
 
@@ -108,7 +106,7 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 					// mb just mute?
 				// break
 				case storage.Severity100:
-					err = ataStorage.Report(chatID, newMember.ID, storage.Severity100, storage.ActionNotified, "sus bio" + triggeredWord)
+					err = ataStorage.Report(chatID, newMember.ID, storage.Severity100, storage.ActionNotified, "sus bio:" + triggeredWord)
 					if err != nil {
 						return err
 					}
@@ -129,6 +127,56 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 				break
 			}
 			
+			// AnalyzeUserPic if user's bio does not have suspicious words
+			// but could have unsafe profile pic
+			if tempSeverity != 0 {
+				return nil
+			}
+
+			apires, err := ataBot.AnalyzeUserPic(&newMember)
+			if err != nil {
+				return err
+			}
+
+			unsafe := apires.Unsafe
+
+			if ! unsafe {
+				for _, obj := range apires.Objects {
+					if (
+						( obj.Label == api.EXPOSED_ANUS ||
+						obj.Label == api.EXPOSED_BELLY ||
+						obj.Label == api.EXPOSED_BREAST_F ||
+						obj.Label == api.EXPOSED_BREAST_M ||
+						obj.Label == api.EXPOSED_BUTTOCKS ||
+						obj.Label == api.EXPOSED_FEET ||
+						obj.Label == api.EXPOSED_GENITALIA_F ||
+						obj.Label == api.EXPOSED_GENITALIA_M ) &&
+						obj.Score >= 0.5 ) {
+						unsafe = true
+					}
+				}
+			}
+
+			if unsafe {
+				err = ataStorage.Report(chatID, newMember.ID, storage.Severity100, storage.ActionNotified, "unsafe profile pic")
+				if err != nil {
+					return err
+				}
+
+				messageText := fmt.Sprintf(`unsafe user(%d) profile pic: "%s" in chat(%d)`, newMember.ID, triggeredWord, chatID)
+
+				data := fmt.Sprintf("%s|,|%d|,|%d|,|%d", BAN, chatID, newMember.ID, update.Message.MessageID)
+				susButton := tgbotapi.NewInlineKeyboardButtonData("ban user", data)
+				urlButton := tgbotapi.NewInlineKeyboardButtonURL("profile", "https://t.me/" + newMember.UserName)
+				markup := tgbotapi.NewInlineKeyboardMarkup([]tgbotapi.InlineKeyboardButton{ susButton, urlButton })
+
+				m := tgbotapi.NewMessage(ataBot.GetAdminID(), messageText)
+				m.ReplyMarkup = markup
+				_, err := ataBot.Send(m)
+				if err != nil {
+					return err
+				}
+			}
 		}
 	}
 	return nil
