@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/ar2rworld/ata_bot/app/myerror"
@@ -37,10 +36,7 @@ func (c *APIStats) Exec(update *tgbotapi.Update) error {
 	ataBot := *c.GetAtaBot()
 	header := ataBot.GetAPIResponseHeader()
 	for _, h := range header {
-		if len(h) != 2 {
-			return myerror.NewError("Invalid header: " + strings.Join(h, ","))
-		}
-		out = append(out, fmt.Sprintf("%s: %s", h[0], h[1]))
+		out = append(out, strings.Join(h, ",")+"\n")
 	}
 
 	message := tgbotapi.NewMessage(update.Message.Chat.ID, strings.Join(out, "\n"))
