@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -176,6 +177,16 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 				if err != nil {
 					return err
 				}
+			}
+			
+			// send analysis data to admin
+			resData, err := json.Marshal(apires)
+			if err != nil {
+				return err
+			}
+			err = ataBot.SendToAdmin(newMember.UserName + "," + string(newMember.ID) + "\n" + string(resData))
+			if err != nil {
+				return err
 			}
 		}
 	}
