@@ -184,7 +184,7 @@ func (t *Trigger) Exec(update *tgbotapi.Update) error {
 			if err != nil {
 				return err
 			}
-			report := fmt.Sprintf("user: %s with id: %d\ndata: %d", newMember.UserName, newMember.ID, resData)
+			report := fmt.Sprintf("user: %s with id: %d\ndata: %s", newMember.UserName, newMember.ID, resData)
 			err = ataBot.SendToAdmin(report)
 			if err != nil {
 				return err
