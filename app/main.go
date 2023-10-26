@@ -59,6 +59,7 @@ func main() {
 	ataBot.AddCommand(commands.NewMaskara())
 	ataBot.AddCommand(commands.NewTrigger())
 	ataBot.AddCommand(commands.NewTriggerCallbackQuery())
+	ataBot.AddCommand(commands.NewWatchReply())
 
 	err = ataBot.SendToAdmin("Bastaimyn goi")
 	if err != nil {
