@@ -37,7 +37,7 @@ func main() {
 	// unbanArt(bot, ataStorage)
 	// banArt(bot)
 
-	bot.Debug = true
+	bot.Debug = false
 
 	updateConfig := tgbotapi.NewUpdate(0)
 
